@@ -48,6 +48,22 @@ ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root 
 ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml
 ```
 
+Установить haproxy balancer 
+
+После установки кластера, балансера скопировать конфиг и поключиться к кластеру 
+
+При возникновении ошибки с сертификатом необходимо добавть наш хост балансера в конфиг кластреа на каждую ноду
+
+```yaml
+sudo /usr/local/bin/kubectl -n kube-system get configmap kubeadm-config -o jsonpath='{.data.ClusterConfiguration}' > /tmp/kubeadm.yaml"
+
+sudo mv /etc/kubernetes/pki/apiserver.{crt,key} /root/
+
+sudo /usr/local/bin/kubeadm init phase certs apiserver --config /tmp/kubeadm.yaml
+```
+
+После этого зайти в кластер и обновить kubeadm-config, добавив balancer в цепочку довереных. 
+
 Note: When Ansible is already installed via system packages on the control node,
 Python packages installed via `sudo pip install -r requirements.txt` will go to
 a different directory tree (e.g. `/usr/local/lib/python2.7/dist-packages` on
